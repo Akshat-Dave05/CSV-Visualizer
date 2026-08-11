@@ -29,6 +29,7 @@ export default function App() {
   const [fields, setFields] = useState([]);
   const [fileDetails, setFileDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
   // Visualization Configuration State
@@ -91,6 +92,20 @@ export default function App() {
   // File Upload Handler
   const handleFileUpload = async (file) => {
     if (!file) return;
+    const isCsv = file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv' || file.type === 'application/vnd.ms-excel';
+    if (!isCsv) {
+      const message = 'Choose a .csv file to continue.';
+      setUploadError(message);
+      showToast(message, 'error');
+      return;
+    }
+    if (file.size === 0) {
+      const message = 'This file is empty. Choose a CSV with a header row and data rows.';
+      setUploadError(message);
+      showToast(message, 'error');
+      return;
+    }
+    setUploadError('');
     setIsLoading(true);
 
     try {
@@ -99,12 +114,15 @@ export default function App() {
 
       const result = await parseCSV(file);
       if (result.error) {
+        setUploadError(result.error);
         showToast(result.error, 'error');
       } else {
         handleDatasetLoaded(result.data, result.fields, file.name, sizeStr);
       }
-    } catch (err) {
-      showToast(`Error reading CSV file: ${err.message}`, 'error');
+    } catch {
+      const message = 'We could not read that CSV. Check the file and try again.';
+      setUploadError(message);
+      showToast(message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -217,6 +235,7 @@ export default function App() {
                 onFileUpload={handleFileUpload}
                 onLoadSample={handleLoadSample}
                 isLoading={isLoading}
+                errorMessage={uploadError}
               />
               <EmptyState onLoadSample={handleLoadSample} />
             </>

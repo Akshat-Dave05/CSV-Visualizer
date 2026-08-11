@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { SAMPLE_DATASETS } from '../utils/sampleDatasets';
 
-export default function UploadZone({ onFileUpload, onLoadSample, isLoading }) {
+export default function UploadZone({ onFileUpload, onLoadSample, isLoading, errorMessage }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragError, setDragError] = useState('');
   const fileInputRef = useRef(null);
@@ -34,7 +34,7 @@ export default function UploadZone({ onFileUpload, onLoadSample, isLoading }) {
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
-      if (file.name.endsWith('.csv') || file.type === 'text/csv' || file.type === 'application/vnd.ms-excel') {
+      if (file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv' || file.type === 'application/vnd.ms-excel') {
         onFileUpload(file);
       } else {
         setDragError('Please drop a valid .CSV file.');
@@ -107,14 +107,19 @@ export default function UploadZone({ onFileUpload, onLoadSample, isLoading }) {
           </div>
         )}
 
+        {errorMessage && (
+          <div className="drag-error-msg" role="alert">
+            <AlertCircle size={15} />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <div className="upload-footer-info">
           <span className="info-badge">
             <CheckCircle2 size={13} className="text-success" /> Supported format: .CSV
           </span>
           <span className="info-separator">•</span>
-          <span>Max file size: 25 MB</span>
-          <span className="info-separator">•</span>
-          <span>Local Browser Processing</span>
+          <span>Your CSV files are processed locally in your browser and are never uploaded to a server.</span>
         </div>
       </div>
 

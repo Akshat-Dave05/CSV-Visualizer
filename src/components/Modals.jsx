@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileText, Info, Check, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, FileText, Info, Check, Sparkles } from 'lucide-react';
 
 export function DocsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -71,7 +71,7 @@ export function AboutModal({ isOpen, onClose }) {
             <div className="hero-icon">
               <Sparkles size={28} className="text-primary" />
             </div>
-            <h4>CSV Visualizer SaaS Edition</h4>
+            <h4>CSV Visualizer</h4>
             <p className="text-muted text-xs">Version 1.0.0 • Built with React & Recharts</p>
           </div>
 
@@ -80,7 +80,7 @@ export function AboutModal({ isOpen, onClose }) {
           </p>
 
           <div className="features-checklist">
-            <div className="check-item"><Check size={14} className="text-success" /> React 18 Modular Architecture</div>
+            <div className="check-item"><Check size={14} className="text-success" /> React modular architecture</div>
             <div className="check-item"><Check size={14} className="text-success" /> PapaParse Local Browser CSV Parser</div>
             <div className="check-item"><Check size={14} className="text-success" /> Recharts Responsive Visualization Engine</div>
             <div className="check-item"><Check size={14} className="text-success" /> Full Light & Dark Theme Support</div>

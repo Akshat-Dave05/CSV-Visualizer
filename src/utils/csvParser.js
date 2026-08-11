@@ -5,13 +5,31 @@ import Papa from 'papaparse';
  * Returns Promise resolving to { data, fields, meta, error }
  */
 export function parseCSV(fileOrContent) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     Papa.parse(fileOrContent, {
       header: true,
       skipEmptyLines: true,
-      dynamicTyping: true, // Automatically parse numbers and booleans
+      dynamicTyping: true,
       transformHeader: (header) => header.trim(),
       complete: (results) => {
+        const fields = results.meta.fields || [];
+        const parserErrors = results.errors || [];
+
+        if (fields.length === 0 || fields.some((field) => !field)) {
+          resolve({ data: [], fields: [], meta: results.meta, error: 'This CSV needs a header row with at least one column name.' });
+          return;
+        }
+
+        if (new Set(fields).size !== fields.length) {
+          resolve({ data: [], fields: [], meta: results.meta, error: 'This CSV has duplicate column headers. Give each column a unique name and try again.' });
+          return;
+        }
+
+        if (parserErrors.some((error) => error.code === 'MissingQuotes')) {
+          resolve({ data: [], fields: [], meta: results.meta, error: 'This CSV has an unmatched quote. Check the file formatting and try again.' });
+          return;
+        }
+
         if (!results.data || results.data.length === 0) {
           resolve({
             data: [],
@@ -22,34 +40,25 @@ export function parseCSV(fileOrContent) {
           return;
         }
 
-        const fields = results.meta.fields || Object.keys(results.data[0] || {});
-        
-        // Clean data: trim string values
-        const cleanedData = results.data.map(row => {
-          const newRow = {};
-          fields.forEach(field => {
-            let val = row[field];
-            if (typeof val === 'string') {
-              val = val.trim();
-            }
-            newRow[field] = val;
-          });
-          return newRow;
-        });
+        if (parserErrors.some((error) => error.code === 'TooFewFields' || error.code === 'TooManyFields')) {
+          resolve({ data: [], fields: [], meta: results.meta, error: 'Some rows have a different number of columns than the header row. Please fix the CSV and try again.' });
+          return;
+        }
 
         resolve({
-          data: cleanedData,
+          // Keep PapaParse's result rather than duplicating the entire dataset in memory.
+          data: results.data,
           fields,
           meta: results.meta,
           error: null
         });
       },
-      error: (err) => {
+      error: () => {
         resolve({
           data: [],
           fields: [],
           meta: null,
-          error: err.message || 'Failed to parse CSV file.'
+          error: 'We could not parse that CSV. Check the file formatting and try again.'
         });
       }
     });
@@ -65,7 +74,6 @@ export function detectColumnTypes(data, fields) {
   fields.forEach(field => {
     let numericCount = 0;
     let dateCount = 0;
-    let stringCount = 0;
     let nonNullCount = 0;
 
     data.forEach(row => {
@@ -85,7 +93,6 @@ export function detectColumnTypes(data, fields) {
             if (!isNaN(parsedDate) && val.length > 5 && (val.includes('-') || val.includes('/'))) {
               dateCount++;
             } else {
-              stringCount++;
             }
           }
         }

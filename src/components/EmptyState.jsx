@@ -1,7 +1,7 @@
 import React from 'react';
 import { BarChart3, Table, Layers } from 'lucide-react';
 
-export default function EmptyState({ onLoadSample }) {
+export default function EmptyState() {
   return (
     <div className="empty-state-card card animate-fade-in">
       <div className="empty-illustration">
