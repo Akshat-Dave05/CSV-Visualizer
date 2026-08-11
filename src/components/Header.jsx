@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  BarChart3, 
   FileText, 
   Info, 
   Menu, 
@@ -20,9 +19,11 @@ export default function Header({
       <div className="header-container">
         {/* Brand / Logo */}
         <div className="header-brand">
-          <div className="logo-icon">
-            <BarChart3 size={20} className="text-primary" />
-          </div>
+          <img
+            src="/csv-visualizer-logo.png"
+            alt="CSV Visualizer"
+            className="logo-image"
+          />
           <div className="brand-text">
             <div className="brand-title">
               CSV Visualizer
@@ -117,16 +118,13 @@ export default function Header({
           flex-shrink: 0;
         }
 
-        .logo-icon {
+        .logo-image {
           width: 34px;
           height: 34px;
           border-radius: var(--radius-sm);
-          background-color: var(--primary-light);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--primary);
+          object-fit: cover;
           flex-shrink: 0;
+          border: 1px solid var(--border-color);
         }
 
         .brand-title {
